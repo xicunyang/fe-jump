@@ -1,7 +1,7 @@
 {
   "name": "fe-jump",
   "displayName": "fe-jump",
-  "description": "fe-jump",
+  "description": "前端辅助跳转插件",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.70.0"
@@ -9,17 +9,28 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:fe-jump.helloWorld"
-  ],
+  "icon": "icon.png",
+  "activationEvents": ["*"],
   "main": "./dist/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xicunyang/fuckdoc.git"
+  },
   "contributes": {
     "commands": [
       {
-        "command": "fe-jump.helloWorld",
-        "title": "Hello World"
+        "command": "fe-jump.jumpSymbolLink",
+        "title": "fe-jump:跳转进符号链接"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "fe-jump.jumpSymbolLink",
+          "group": "group1"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
