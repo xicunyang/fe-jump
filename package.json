@@ -2,7 +2,8 @@
   "name": "fe-jump",
   "displayName": "fe-jump",
   "description": "前端辅助跳转插件",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "publisher": "xicunyang",
   "engines": {
     "vscode": "^1.70.0"
   },
@@ -14,7 +15,7 @@
   "main": "./dist/extension.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/xicunyang/fuckdoc.git"
+    "url": "https://github.com/xicunyang/fe-jump"
   },
   "contributes": {
     "commands": [
