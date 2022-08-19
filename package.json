@@ -2,7 +2,7 @@
   "name": "fe-jump",
   "displayName": "fe-jump",
   "description": "前端辅助跳转插件",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "xicunyang",
   "engines": {
     "vscode": "^1.60.0"
