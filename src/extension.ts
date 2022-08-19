@@ -7,7 +7,37 @@ const fs = require("fs");
 const isWin = process.platform === "win32";
 
 /**
- * 打开文件
+ * 提示信息
+ * 
+ * @param msg 信息
+ */
+ const alertMsg = (msg: string) => {
+  vscode.window.showInformationMessage(msg);
+};
+
+/**
+ * 获取包名
+ * 
+ * @param document document 
+ * @param position position 
+ * @returns 包名
+ */
+ const getPkgName = (
+  document: vscode.TextDocument,
+  position: vscode.Position
+) => {
+  // 当前行的文字
+  const line = document.lineAt(position);
+
+  // 将所在行进行匹配，匹配第一个引号中的文字，即包名字
+  const splitRes = line.text.split('"');
+
+  // 返回包的名字
+  return splitRes[1];
+};
+
+/**
+ * 在编辑器中打开文本文件
  *
  * @param filePath 文件目录
  */
@@ -16,6 +46,46 @@ const openFile = (filePath: string) => {
   vscode.workspace.openTextDocument(openPath).then((doc) => {
     vscode.window.showTextDocument(doc);
   });
+};
+
+/**
+ * 执行require.resolve命令
+ * 
+ * @param pkgName 包名
+ * @returns 
+ */
+const execResolve = (pkgName: string) => {
+  let destPath = "";
+  try {
+    destPath = childProcess
+      .execSync(`node -e "console.log(require.resolve('${pkgName}'))"`)
+      .toString();
+  } catch (e) {
+    console.log("出错啦:", e);
+  }
+  return destPath;
+};
+
+/**
+ * 获取路径
+ * 
+ * @param pkgName 包名
+ * @returns 路径
+ */
+const resolvePath = (pkgName: string) => {
+  let destPath = "";
+  // 先查找下的package.json
+  destPath = execResolve(`${pkgName}/package.json`);
+
+  // 如果找不到，继续查找其入口
+  if (!destPath) {
+    destPath = execResolve(pkgName);
+  }
+
+  // 奇怪的点，childProcess返回的目录中最后有一个空格，要删除
+  destPath = destPath.trimEnd();
+
+  return destPath;
 };
 
 /**
@@ -41,39 +111,21 @@ function provideDefinition(
   // 当前工作目录
   const workDir = path.dirname(filePath);
 
-  // 当前行的文字
-  const line = document.lineAt(position);
-
-  // 将所在行进行匹配，匹配第一个引号中的文字，即包名字
-  const splitRes = line.text.split('"');
+  // 获取包名
+  const pkgName = getPkgName(document, position);
 
   // 判空
-  if (splitRes.length && splitRes[1]) {
-    // 包的名字
-    const pkgName = splitRes[1];
-
+  if (pkgName) {
     // 关键：切换node执行目录，将其切换到当前正在点击的依赖目录
     process.chdir(workDir);
 
     // 通过node的寻找依赖的能力，来定位根本位置
-    let destPath = "";
-    try {
-      destPath = childProcess
-        .execSync(`node -e 'console.log(require.resolve("${pkgName}"))'`)
-        .toString();
-    } catch (e) {
-      console.log("出错啦:", e);
-    }
-
-    // 奇怪的点，childProcess返回的目录中最后有一个空格，要删除
-    destPath = destPath.trimEnd();
+    const destPath = resolvePath(pkgName);
 
     if (destPath && destPath.split("/").length === 1) {
       // 异常模块，和node模块名称一致，require.resolve时有问题，先忽略，比较少
       // 提示异常
-      vscode.window.showInformationMessage(
-        "暂不支持该依赖，该依赖和node内置方法重名"
-      );
+      alertMsg("暂不支持该依赖，该依赖和node内置方法重名");
       return;
     }
 
@@ -114,40 +166,21 @@ function provideDefinitionForWin(
   // 重新组装
   const filePath = fileSplitArr.join("\\\\");
 
-  // 当前行的文字
-  const line = document.lineAt(position);
+  // 获取包名
+  const pkgName = getPkgName(document, position);
 
-  // 将所在行进行匹配，匹配第一个引号中的文字，即包名字
-  const splitRes = line.text.split('"');
-
-  // 判空
-  if (splitRes.length && splitRes[1]) {
-    // 包的名字
-    const pkgName = splitRes[1];
-
+  // 判空包名
+  if (pkgName) {
     // 关键：切换node执行目录，将其切换到当前正在点击的依赖目录
     process.chdir(filePath);
 
-    // 执行命令
-    const execPath = `node -e "console.log(require.resolve('${pkgName}'))"`;
-
     // 通过node的寻找依赖的能力，来定位根本位置
-    let destPath = "";
-    try {
-      destPath = childProcess.execSync(execPath).toString();
-    } catch (e) {
-      console.log("出错啦:", e);
-    }
-
-    // 奇怪的点，childProcess返回的目录中最后有一个空格，要删除
-    destPath = destPath.trimEnd();
+    const destPath = resolvePath(pkgName);
 
     if (destPath && destPath.split("\\").length === 1) {
       // 异常模块，和node模块名称一致，require.resolve时有问题，先忽略，比较少
       // 提示异常
-      vscode.window.showInformationMessage(
-        "暂不支持该依赖，该依赖和node内置方法重名"
-      );
+      alertMsg("暂不支持该依赖，该依赖和node内置方法重名");
       return;
     }
 
