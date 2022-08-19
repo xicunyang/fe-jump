@@ -30,16 +30,16 @@ function provideDefinition(
   position: vscode.Position,
   token: vscode.CancellationToken
 ) {
-  const fileName = "package.json";
+  // 文件名
+  const filePath = document.fileName;
 
-  const isLegalFileName = document.fileName.includes(fileName);
-
-  if (!isLegalFileName) {
+  // 非package.json文件，不处理
+  if (!filePath.endsWith("package.json")) {
     return;
   }
 
   // 当前工作目录
-  const workDir = path.dirname(fileName);
+  const workDir = path.dirname(filePath);
 
   // 当前行的文字
   const line = document.lineAt(position);
@@ -68,8 +68,17 @@ function provideDefinition(
     // 奇怪的点，childProcess返回的目录中最后有一个空格，要删除
     destPath = destPath.trimEnd();
 
+    if (destPath && destPath.split("/").length === 1) {
+      // 异常模块，和node模块名称一致，require.resolve时有问题，先忽略，比较少
+      // 提示异常
+      vscode.window.showInformationMessage(
+        "暂不支持该依赖，该依赖和node内置方法重名"
+      );
+      return;
+    }
+
     // 判空
-    if (destPath) {
+    if (destPath && fs.existsSync(destPath)) {
       // new vscode.Position(0, 0) 表示跳转到某个文件的第一行第一列
       return new vscode.Location(
         vscode.Uri.file(destPath),
@@ -133,8 +142,17 @@ function provideDefinitionForWin(
     // 奇怪的点，childProcess返回的目录中最后有一个空格，要删除
     destPath = destPath.trimEnd();
 
+    if (destPath && destPath.split("\\").length === 1) {
+      // 异常模块，和node模块名称一致，require.resolve时有问题，先忽略，比较少
+      // 提示异常
+      vscode.window.showInformationMessage(
+        "暂不支持该依赖，该依赖和node内置方法重名"
+      );
+      return;
+    }
+
     // 判空
-    if (destPath) {
+    if (destPath && fs.existsSync(destPath)) {
       // new vscode.Position(0, 0) 表示跳转到某个文件的第一行第一列
       return new vscode.Location(
         vscode.Uri.file(destPath),
