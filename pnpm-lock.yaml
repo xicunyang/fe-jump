@@ -4,7 +4,7 @@ specifiers:
   '@types/glob': ^7.2.0
   '@types/mocha': ^9.1.1
   '@types/node': 16.x
-  '@types/vscode': ^1.70.0
+  '@types/vscode': 1.60.0
   '@typescript-eslint/eslint-plugin': ^5.31.0
   '@typescript-eslint/parser': ^5.31.0
   '@vscode/test-electron': ^2.1.5
@@ -20,7 +20,7 @@ devDependencies:
   '@types/glob': 7.2.0
   '@types/mocha': 9.1.1
   '@types/node': 16.11.49
-  '@types/vscode': 1.70.0
+  '@types/vscode': 1.60.0
   '@typescript-eslint/eslint-plugin': 5.33.1_vsoshirnpb7xw6mr7xomgfas2i
   '@typescript-eslint/parser': 5.33.1_4rv7y5c6xz3vfxwhbrcxxi73bq
   '@vscode/test-electron': 2.1.5
@@ -179,8 +179,8 @@ packages:
     resolution: {integrity: sha512-Abq9fBviLV93OiXMu+f6r0elxCzRwc0RC5f99cU892uBITL44pTvgvEqlRlPRi8EGcO1z7Cp8A4d0s/p3J/+Nw==}
     dev: true
 
-  /@types/vscode/1.70.0:
-    resolution: {integrity: sha512-3/9Fz0F2eBgwciazc94Ien+9u1elnjFg9YAhvAb3qDy/WeFWD9VrOPU7CIytryOVUdbxus8uzL4VZYONA0gDtA==}
+  /@types/vscode/1.60.0:
+    resolution: {integrity: sha512-wZt3VTmzYrgZ0l/3QmEbCq4KAJ71K3/hmMQ/nfpv84oH8e81KKwPEoQ5v8dNCxfHFVJ1JabHKmCvqdYOoVm1Ow==}
     dev: true
 
   /@typescript-eslint/eslint-plugin/5.33.1_vsoshirnpb7xw6mr7xomgfas2i:
