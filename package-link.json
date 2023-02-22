@@ -2,7 +2,7 @@
   "name": "symbolic-link-jump",
   "displayName": "Symbolic Link Jump Tools",
   "description": "Symbolic Link Jump Tools",
-  "version": "1.0.8",
+  "version": "1.0.11",
   "publisher": "xicunyang",
   "engines": {
     "vscode": "^1.60.0"

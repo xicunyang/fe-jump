@@ -3,26 +3,36 @@ const childProcess = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
+interface Process {
+  // 临时变量，为了连接 Definition 触发后，和 onDidChangeActiveTextEditor 监听时的问题，该方法依旧不完美，但是也不会出现异常情况，可以放心使用
+  __fe_jump_current_path__: string;
+}
+
+declare const process: Process & NodeJS.Process;
+
+
 // 是否是windows系统
 const isWin = process.platform === "win32";
+// 初始为空字符串
+process.__fe_jump_current_path__ = "";
 
 /**
  * 提示信息
- * 
+ *
  * @param msg 信息
  */
- const alertMsg = (msg: string) => {
+const alertMsg = (msg: string) => {
   vscode.window.showInformationMessage(msg);
 };
 
 /**
  * 获取包名
- * 
- * @param document document 
- * @param position position 
+ *
+ * @param document document
+ * @param position position
  * @returns 包名
  */
- const getPkgName = (
+const getPkgName = (
   document: vscode.TextDocument,
   position: vscode.Position
 ) => {
@@ -43,16 +53,19 @@ const isWin = process.platform === "win32";
  */
 const openFile = (filePath: string) => {
   const openPath = vscode.Uri.file(filePath);
+
   vscode.workspace.openTextDocument(openPath).then((doc) => {
     vscode.window.showTextDocument(doc);
+    // 定位左侧文件树
+    vscode.commands.executeCommand("revealInExplorer", openPath);
   });
 };
 
 /**
  * 执行require.resolve命令
- * 
+ *
  * @param pkgName 包名
- * @returns 
+ * @returns
  */
 const execResolve = (pkgName: string) => {
   let destPath = "";
@@ -68,7 +81,7 @@ const execResolve = (pkgName: string) => {
 
 /**
  * 获取路径
- * 
+ *
  * @param pkgName 包名
  * @returns 路径
  */
@@ -132,6 +145,7 @@ function provideDefinition(
     // 判空
     if (destPath && fs.existsSync(destPath)) {
       // new vscode.Position(0, 0) 表示跳转到某个文件的第一行第一列
+      process.__fe_jump_current_path__ = destPath;
       return new vscode.Location(
         vscode.Uri.file(destPath),
         new vscode.Position(0, 0)
@@ -257,6 +271,18 @@ export function activate(context: vscode.ExtensionContext) {
       providerJumpSymbolLink
     )
   );
+
+  // 在激活编辑器时刷新树视图
+  // 灵感来自ChatGPT，太惊艳我了！
+  // Inspired by ChatGPT, it's amazing!
+  vscode.window.onDidChangeActiveTextEditor((editor) => {
+    const uri = editor?.document?.uri;
+    if (uri) {
+      if (process.__fe_jump_current_path__ === uri.path) {
+        vscode.commands.executeCommand("revealInExplorer", uri);
+      }
+    }
+  });
 }
 
 // this method is called when your extension is deactivated
