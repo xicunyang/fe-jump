@@ -2,7 +2,7 @@
   "name": "node-modules-jump",
   "displayName": "Best Node_modules Jump Tools",
   "description": "Best Node_modules Jump Tools",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "publisher": "xicunyang",
   "engines": {
     "vscode": "^1.60.0"
